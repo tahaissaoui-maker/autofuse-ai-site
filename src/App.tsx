@@ -239,7 +239,10 @@ const HomePage = ({ onNavigate }) => (
             </a>
             <button onClick={()=>onNavigate("solutions")} className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-transparent px-5 py-2.5 text-zinc-200 hover:bg-white/5">Explore solutions</button>
           </div>
-          <p className="mt-6 text-center text-xs text-zinc-400">Works with your existing stack • No platform lock‑in • You fully own the agent</p>
+          <p className="mt-6 text-center text-xs text-zinc-400">
+            Works with your existing stack • No platform lock-in • You fully own the agent
+          </p>
+          <SoundWaves />
         </div>
 
         
@@ -434,31 +437,31 @@ const Spinner = () => (
   <svg className="h-4 w-4 animate-spin" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" className="fill-none stroke-white/20" strokeWidth="3"/><path d="M22 12a10 10 0 00-10-10" className="fill-none stroke-white" strokeWidth="3"/></svg>
 );
 
-const CompareCard = () => (
-  <div className="rounded-3xl border border-white/10 bg-white/[0.02] p-6">
-    <h3 className="text-xl font-semibold text-white">Why choose our approach</h3>
-    <div className="mt-4 grid gap-4 md:grid-cols-2">
-      <div>
-        <h4 className="text-sm font-medium text-zinc-200">Our team</h4>
-        <ul className="mt-2 space-y-2 text-sm text-zinc-300">
-          <li className="flex items-start gap-2"><Dot/> Experienced prompt engineers & automation builders</li>
-          <li className="flex items-start gap-2"><Dot/> Complete custom development</li>
-          <li className="flex items-start gap-2"><Dot/> Client‑centric, iterative delivery</li>
-          <li className="flex items-start gap-2"><Dot/> Rigorous testing & validation</li>
-          <li className="flex items-start gap-2"><Dot/> Connections with leading AI platforms</li>
-        </ul>
-      </div>
-      <div>
-        <h4 className="text-sm font-medium text-zinc-200">Typical alternatives</h4>
-        <ul className="mt-2 space-y-2 text-sm text-zinc-300">
-          <li className="flex items-start gap-2"><Dot/> Generic, copy‑paste setups</li>
-          <li className="flex items-start gap-2"><Dot/> Limited testing & QA</li>
-          <li className="flex items-start gap-2"><Dot/> Outdated approaches</li>
-          <li className="flex items-start gap-2"><Dot/> No platform access or support</li>
-        </ul>
-      </div>
-    </div>
-  </div>
+// Animated sound waves (pure SVG, no extra CSS)
+const SoundWaves = () => (
+  <svg viewBox="0 0 1200 150" className="mx-auto mt-8 w-full max-w-4xl" aria-hidden="true">
+    <defs>
+      <linearGradient id="waveGrad" x1="0" x2="1" y1="0" y2="0">
+        <stop offset="0%" stopColor="#6366f1" />
+        <stop offset="100%" stopColor="#06b6d4" />
+      </linearGradient>
+    </defs>
+    <path d="M0 80 C 150 20, 300 140, 450 80 S 750 20, 900 80 S 1050 140, 1200 80" fill="none" stroke="url(#waveGrad)" strokeOpacity="1" strokeWidth="2" strokeLinecap="round" strokeDasharray="200 600">
+      <animate attributeName="stroke-dashoffset" from="0" to="-800" dur="5s" repeatCount="indefinite" />
+    </path>
+    <path d="M0 88 C 150 28, 300 148, 450 88 S 750 28, 900 88 S 1050 148, 1200 88" fill="none" stroke="url(#waveGrad)" strokeOpacity="0.8" strokeWidth="2" strokeLinecap="round" strokeDasharray="200 600">
+      <animate attributeName="stroke-dashoffset" from="0" to="-800" dur="6s" repeatCount="indefinite" />
+    </path>
+    <path d="M0 96 C 150 36, 300 156, 450 96 S 750 36, 900 96 S 1050 156, 1200 96" fill="none" stroke="url(#waveGrad)" strokeOpacity="0.6" strokeWidth="2" strokeLinecap="round" strokeDasharray="200 600">
+      <animate attributeName="stroke-dashoffset" from="0" to="-800" dur="7s" repeatCount="indefinite" />
+    </path>
+    <path d="M0 104 C 150 44, 300 164, 450 104 S 750 44, 900 104 S 1050 164, 1200 104" fill="none" stroke="url(#waveGrad)" strokeOpacity="0.45" strokeWidth="2" strokeLinecap="round" strokeDasharray="200 600">
+      <animate attributeName="stroke-dashoffset" from="0" to="-800" dur="8s" repeatCount="indefinite" />
+    </path>
+    <path d="M0 112 C 150 52, 300 172, 450 112 S 750 52, 900 112 S 1050 172, 1200 112" fill="none" stroke="url(#waveGrad)" strokeOpacity="0.3" strokeWidth="2" strokeLinecap="round" strokeDasharray="200 600">
+      <animate attributeName="stroke-dashoffset" from="0" to="-800" dur="9s" repeatCount="indefinite" />
+    </path>
+  </svg>
 );
 
 /******************************
