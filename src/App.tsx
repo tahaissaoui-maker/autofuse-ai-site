@@ -1,6 +1,52 @@
 import React, { useEffect, useRef, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 
+// Missed Money Calculator — sits below sound waves
+const MissedMoneyCalculator = () => {
+  const [missed, setMissed] = useState(4);
+  const [value, setValue] = useState(500);
+  const conv = 0.25;
+  const day = Math.round(missed * (Number(value)||0) * conv);
+  const month = day * 30;
+  const year = day * 365;
+  const fmt = (n) => n.toLocaleString(undefined,{maximumFractionDigits:0});
+  return (
+    <section className="mx-auto max-w-7xl px-4">
+      <div className="mx-auto max-w-4xl rounded-3xl border border-white/10 bg-gradient-to-br from-white/[0.02] to-transparent p-6 sm:p-8">
+        <h3 className="text-center text-2xl font-semibold text-white">How much money are you losing?</h3>
+        <div className="mt-6 space-y-6">
+          <div>
+            <div className="text-sm text-zinc-300">Missed calls per day: <span className="font-medium text-white">{missed}</span></div>
+            <input type="range" min="0" max="50" step="1" value={missed} onChange={(e)=>setMissed(parseInt(e.target.value||'0',10))} className="mt-2 w-full accent-sky-400" />
+          </div>
+          <div>
+            <div className="text-sm text-zinc-300">Average client value ($)</div>
+            <input type="number" inputMode="numeric" min="0" value={value} onChange={(e)=>setValue(parseInt(e.target.value||'0',10))} className="mt-2 w-full rounded-2xl border border-white/10 bg-white/[0.04] px-3 py-2 text-white placeholder:text-zinc-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/40" placeholder="500" />
+          </div>
+          <div className="grid gap-4 sm:grid-cols-3">
+            <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-4 text-center">
+              <div className="text-sm text-zinc-400">Lost revenue per day</div>
+              <div className="mt-1 text-2xl font-bold text-rose-400">${fmt(day)}</div>
+            </div>
+            <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-4 text-center">
+              <div className="text-sm text-zinc-400">Lost revenue per month</div>
+              <div className="mt-1 text-2xl font-bold text-rose-400">${fmt(month)}</div>
+            </div>
+            <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-4 text-center">
+              <div className="text-sm text-zinc-400">Lost revenue per year</div>
+              <div className="mt-1 text-2xl font-bold text-rose-400">${fmt(year)}</div>
+            </div>
+          </div>
+          <p className="mt-2 text-center text-xs text-zinc-500">*Assumes a 25% conversion rate on answered calls.</p>
+          <div className="mt-4 flex justify-center">
+            <a href={CAL_URL} target="_blank" rel="noreferrer" className="inline-flex items-center rounded-full bg-gradient-to-r from-indigo-500 via-sky-500 to-cyan-400 px-5 py-2.5 text-sm font-medium text-white hover:opacity-95">Book a demo — Stop losing money</a>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+};
+
 /*******************************************************
  AutoFuse AI — Voice AI Agency (Inflate‑style, compact)
  Single‑file React + Tailwind SPA (< 1000 lines)
@@ -193,7 +239,7 @@ const Header = ({ route, onNavigate }) => {
             <a key={item.label} href={`#${item.route}`} onClick={(e)=>{e.preventDefault(); onNavigate(item.route);}} className={classNames("rounded-full px-3 py-2 text-sm transition hover:bg-white/5", route===item.route?"text-white":"text-zinc-300 hover:text-white")}>{item.label}</a>
           ))}
         </nav>
-        <a href={CAL_URL} target="_blank" rel="noreferrer" className="hidden md:inline-flex ml-4 rounded-full bg-gradient-to-r from-indigo-500 via-sky-500 to-cyan-400 px-4 py-2 text-sm font-medium text-white hover:opacity-95">Book a Strategy Call</a>
+        <a href={CAL_URL} target="_blank" rel="noreferrer" className="hidden md:inline-flex ml-4 rounded-full bg-gradient-to-r from-indigo-500 via-sky-500 to-cyan-400 px-4 py-2 text-sm font-medium text-white hover:opacity-95">Book a Free Call</a>
 
         <button onClick={()=>setOpen(s=>!s)} className="md:hidden inline-flex h-10 w-10 items-center justify-center rounded-xl border border-white/10 bg-white/5 text-white" aria-label="Toggle menu">
           <svg width="18" height="18" viewBox="0 0 18 18" className="opacity-90"><path d="M2 4h14M2 9h14M2 14h14" stroke="currentColor" strokeWidth="1.5"/></svg>
@@ -232,12 +278,11 @@ const HomePage = ({ onNavigate }) => (
             Scale fast and cut costs with <span className="bg-gradient-to-r from-indigo-400 via-sky-400 to-cyan-300 bg-clip-text text-transparent">AI workers</span>
           </h1>
           <p className="mx-auto mt-6 max-w-xl text-center text-zinc-300">We build AI Voice, Chat & Automation Agents tailored to your workflows — boosting revenue and saving time, 24/7.</p>
-          <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
-            <a href={CAL_URL} target="_blank" rel="noreferrer" className="group inline-flex items-center gap-2 rounded-full bg-white/10 px-5 py-2.5 text-white transition hover:bg-white/20">
+          <div className="mt-8 flex items-center justify-center">
+            <a href={CAL_URL} target="_blank" rel="noreferrer" className="inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-indigo-500 via-sky-500 to-cyan-400 px-6 py-3 text-sm font-medium text-white shadow-lg shadow-cyan-500/10 hover:opacity-95 focus:outline-none focus:ring-2 focus:ring-indigo-500/40">
               <svg width="18" height="18" viewBox="0 0 24 24" className="opacity-90 group-hover:translate-x-0.5 transition-transform"><path d="M5 12h14M13 5l7 7-7 7" stroke="currentColor" strokeWidth="1.5" fill="none"/></svg>
               Book a discovery call
             </a>
-            <button onClick={()=>onNavigate("solutions")} className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-transparent px-5 py-2.5 text-zinc-200 hover:bg-white/5">Explore solutions</button>
           </div>
           <p className="mt-6 text-center text-xs text-zinc-400">
             Works with your existing stack • No platform lock-in • You fully own the agent
@@ -248,6 +293,8 @@ const HomePage = ({ onNavigate }) => (
         
       </div>
     </section>
+
+    <MissedMoneyCalculator />
 
     <TryCallSection />
 
