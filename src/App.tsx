@@ -540,9 +540,9 @@ function RouterView({ route, onNavigate }) {
   return (
     <main>
       {route === "home" && <HomePage onNavigate={onNavigate} />}
-      {route === "solutions" && <SolutionsPage />}
-      {route === "case-studies" && <CaseStudiesPage />}
-      {route === "how-it-works" && <HowItWorksPage />}
+      {route === "#solutions" && <SolutionsPage />}
+      {route === "#case-studies" && <CaseStudiesPage />}
+      {route === "#how-it-works" && <HowItWorksPage />}
     </main>
   );
 }
