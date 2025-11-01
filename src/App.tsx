@@ -192,8 +192,8 @@ const Header = ({ route, onNavigate }) => {
           {NAV.map((item)=> (
             <a key={item.label} href={`#${item.route}`} onClick={(e)=>{e.preventDefault(); onNavigate(item.route);}} className={classNames("rounded-full px-3 py-2 text-sm transition hover:bg-white/5", route===item.route?"text-white":"text-zinc-300 hover:text-white")}>{item.label}</a>
           ))}
-          <a href={CAL_URL} target="_blank" rel="noreferrer" className="ml-2 rounded-full bg-gradient-to-r from-indigo-500 via-sky-500 to-cyan-400 px-4 py-2 text-sm font-medium text-white hover:opacity-95">Book a Free Call</a>
         </nav>
+        <a href={CAL_URL} target="_blank" rel="noreferrer" className="hidden md:inline-flex ml-4 rounded-full bg-gradient-to-r from-indigo-500 via-sky-500 to-cyan-400 px-4 py-2 text-sm font-medium text-white hover:opacity-95">Book a Strategy Call</a>
 
         <button onClick={()=>setOpen(s=>!s)} className="md:hidden inline-flex h-10 w-10 items-center justify-center rounded-xl border border-white/10 bg-white/5 text-white" aria-label="Toggle menu">
           <svg width="18" height="18" viewBox="0 0 18 18" className="opacity-90"><path d="M2 4h14M2 9h14M2 14h14" stroke="currentColor" strokeWidth="1.5"/></svg>
@@ -394,10 +394,41 @@ const ServiceCard = ({ title, desc, bullets = [], gradient = "from-indigo-500/20
   </motion.div>
 );
 
+// Benefit card used in Home > Benefits
 const Benefit = ({ title, desc }) => (
   <div className="rounded-3xl border border-white/10 bg-white/[0.02] p-6">
-    <h3 className="text-lg font-semibold text-white">{title}</h3>
-    <p className="mt-2 text-sm text-zinc-300">{desc}</p>
+    <div className="flex items-start gap-3">
+      <span className="mt-1 h-2 w-2 shrink-0 rounded-full bg-gradient-to-r from-indigo-500 via-sky-500 to-cyan-400" />
+      <div>
+        <h3 className="text-white font-semibold">{title}</h3>
+        <p className="mt-2 text-sm text-zinc-300">{desc}</p>
+      </div>
+    </div>
+  </div>
+);
+
+// CompareCard — used on Solutions & How It Works
+const CompareCard = () => (
+  <div className="rounded-3xl border border-white/10 bg-white/[0.02] p-6">
+    <h3 className="text-xl font-semibold text-white">Manual vs. With an AI Agent</h3>
+    <div className="mt-4 grid gap-4 sm:grid-cols-2">
+      <div className="rounded-2xl border border-white/10 bg-white/[0.02] p-4">
+        <div className="text-sm font-medium text-zinc-300">Before (Manual)</div>
+        <ul className="mt-2 list-disc space-y-1 pl-5 text-sm text-zinc-400">
+          <li>Missed calls & slow response times</li>
+          <li>Repetitive Q&A handled by staff</li>
+          <li>Notes scattered across tools</li>
+        </ul>
+      </div>
+      <div className="rounded-2xl border border-white/10 bg-white/[0.02] p-4">
+        <div className="text-sm font-medium text-zinc-300">After (AI Agent)</div>
+        <ul className="mt-2 list-disc space-y-1 pl-5 text-sm text-zinc-400">
+          <li>Instant answers & call routing 24/7</li>
+          <li>Bookings & updates sent to your CRM</li>
+          <li>Structured notes for every interaction</li>
+        </ul>
+      </div>
+    </div>
   </div>
 );
 
@@ -468,18 +499,23 @@ const SoundWaves = () => (
  * Try‑now lead capture (Home)
  ******************************/
 const TryCallSection = () => {
-  const [form, setForm] = useState({ name: "", phone: "", company: "" });
+  const [form, setForm] = useState({ name: "", email: "", phone: "", company: "" });
   const [status, setStatus] = useState("idle");
   const onChange = (e) => setForm((f) => ({ ...f, [e.target.name]: e.target.value }));
   const tryCall = async (e) => {
     e.preventDefault();
+    // guard: all fields required
+    if (!form.name || !form.email || !form.phone || !form.company) {
+      setStatus("error");
+      return;
+    }
     try {
       setStatus("submitting");
       const payload = { source: "autofuse-try-call", action: "try_now", ...form, callMe: true, timestamp: new Date().toISOString() };
       const res = await fetch(WEBHOOK_URL, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload) });
       if (!res.ok) throw new Error("Webhook error");
       setStatus("success");
-      setForm({ name: "", phone: "", company: "" });
+      setForm({ name: "", email: "", phone: "", company: "" });
     } catch (err) {
       console.error(err);
       setStatus("error");
@@ -489,14 +525,15 @@ const TryCallSection = () => {
     <section className="mx-auto max-w-7xl px-4 pb-8">
       <div className="rounded-3xl border border-white/10 bg-white/[0.02] p-6 text-center">
         <div className="text-xs text-zinc-400">TRY IT</div>
-        <h3 className="mt-2 text-2xl font-semibold text-white">Try a Voice Agent now</h3>
+        <h3 className="mt-2 text-2xl font-semibold text-white">Try Our Voice Agent</h3>
         <p className="mt-2 text-sm text-zinc-300">Enter your details and click <span className="text-white/90">Try now</span>. Our agent will call you.</p>
-        <form onSubmit={tryCall} className="mx-auto mt-6 grid max-w-3xl gap-3 sm:grid-cols-3">
-          <input name="name" value={form.name} onChange={onChange} placeholder="Your name" className="rounded-2xl border border-white/10 bg-white/[0.03] px-3 py-2 text-sm text-white placeholder:text-zinc-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/40"/>
-          <input name="phone" value={form.phone} onChange={onChange} placeholder="Phone number" className="rounded-2xl border border-white/10 bg-white/[0.03] px-3 py-2 text-sm text-white placeholder:text-zinc-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/40"/>
-          <input name="company" value={form.company} onChange={onChange} placeholder="Company (optional)" className="rounded-2xl border border-white/10 bg-white/[0.03] px-3 py-2 text-sm text-white placeholder:text-zinc-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/40"/>
-          <div className="sm:col-span-3 mt-2 flex justify-center">
-            <button type="submit" disabled={status==="submitting"} className="inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-indigo-500 via-sky-500 to-cyan-400 px-5 py-2.5 text-sm font-medium text-white hover:opacity-95 disabled:opacity-60">
+        <form onSubmit={tryCall} className="mx-auto mt-6 grid max-w-3xl gap-3 sm:grid-cols-4">
+          <input name="name" value={form.name} onChange={onChange} placeholder="Your name" required className="rounded-2xl border border-white/10 bg-white/[0.03] px-3 py-2 text-sm text-white placeholder:text-zinc-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/40"/>
+          <input name="email" type="email" value={form.email} onChange={onChange} placeholder="Email" required className="rounded-2xl border border-white/10 bg-white/[0.03] px-3 py-2 text-sm text-white placeholder:text-zinc-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/40"/>
+          <input name="phone" value={form.phone} onChange={onChange} placeholder="Phone number" required className="rounded-2xl border border-white/10 bg-white/[0.03] px-3 py-2 text-sm text-white placeholder:text-zinc-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/40"/>
+          <input name="company" value={form.company} onChange={onChange} placeholder="Company" required className="rounded-2xl border border-white/10 bg-white/[0.03] px-3 py-2 text-sm text-white placeholder:text-zinc-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/40"/>
+          <div className="sm:col-span-4 mt-2 flex justify-center">
+            <button type="submit" disabled={status==="submitting" || !form.name || !form.email || !form.phone || !form.company} className="inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-indigo-500 via-sky-500 to-cyan-400 px-5 py-2.5 text-sm font-medium text-white hover:opacity-95 disabled:opacity-60">
               {status==="submitting" ? <Spinner/> : null}
               {status==="submitting" ? "Processing…" : "Try now"}
             </button>
