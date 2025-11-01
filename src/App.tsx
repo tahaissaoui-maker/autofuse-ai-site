@@ -524,9 +524,9 @@ const Footer = () => (
         <span className="text-white">AutoFuse <span className="text-indigo-400">AI</span></span>
       </div>
       <nav className="mx-auto flex flex-wrap items-center justify-center gap-4">
-        <a href="solutions" className="hover:text-zinc-200">Solutions</a>
-        <a href="case-studies" className="hover:text-zinc-200">Case studies</a>
-        <a href="how-it-works" className="hover:text-zinc-200">How it works</a>
+        <a href="#solutions" className="hover:text-zinc-200">Solutions</a>
+        <a href="#case-studies" className="hover:text-zinc-200">Case studies</a>
+        <a href="#how-it-works" className="hover:text-zinc-200">How it works</a>
       </nav>
       <div className="text-xs">© {new Date().getFullYear()} AutoFuse AI. All rights reserved.</div>
     </div>
@@ -540,9 +540,9 @@ function RouterView({ route, onNavigate }) {
   return (
     <main>
       {route === "home" && <HomePage onNavigate={onNavigate} />}
-      {route === "#solutions" && <SolutionsPage />}
-      {route === "#case-studies" && <CaseStudiesPage />}
-      {route === "#how-it-works" && <HowItWorksPage />}
+      {route === "solutions" && <SolutionsPage />}
+      {route === "case-studies" && <CaseStudiesPage />}
+      {route === "how-it-works" && <HowItWorksPage />}
     </main>
   );
 }
