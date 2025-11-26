@@ -1,649 +1,803 @@
-import React, { useEffect, useRef, useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+"use client";
 
-// Missed Money Calculator — sits below sound waves
-const MissedMoneyCalculator = () => {
-  const [missed, setMissed] = useState(4);
-  const [value, setValue] = useState(500);
-  const conv = 0.25;
-  const day = Math.round(missed * (Number(value)||0) * conv);
-  const month = day * 30;
-  const year = day * 365;
-  const fmt = (n) => n.toLocaleString(undefined,{maximumFractionDigits:0});
+import React, { useEffect, useState, useRef, FormEvent } from "react";
+import { 
+  Phone, 
+  PhoneIncoming, 
+  PhoneOutgoing, 
+  Activity, 
+  Star, 
+  CheckCircle, 
+  ArrowRight, 
+  Landmark, 
+  Home, 
+  Smile, 
+  Building2 
+} from "lucide-react";
+
+// Main Page Component
+export default function AutoFuseAIPage() {
   return (
-    <section className="mx-auto max-w-7xl px-4">
-      <div className="mx-auto max-w-4xl rounded-3xl border border-white/10 bg-gradient-to-br from-white/[0.02] to-transparent p-6 sm:p-8">
-        <h3 className="text-center text-2xl font-semibold text-white">How much money are you losing?</h3>
-        <div className="mt-6 space-y-6">
-          <div>
-            <div className="text-sm text-zinc-300">Missed calls per day: <span className="font-medium text-white">{missed}</span></div>
-            <input type="range" min="0" max="50" step="1" value={missed} onChange={(e)=>setMissed(parseInt(e.target.value||'0',10))} className="mt-2 w-full accent-sky-400" />
-          </div>
-          <div>
-            <div className="text-sm text-zinc-300">Average client value ($)</div>
-            <input type="number" inputMode="numeric" min="0" value={value} onChange={(e)=>setValue(parseInt(e.target.value||'0',10))} className="mt-2 w-full rounded-2xl border border-white/10 bg-white/[0.04] px-3 py-2 text-white placeholder:text-zinc-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/40" placeholder="500" />
-          </div>
-          <div className="grid gap-4 sm:grid-cols-3">
-            <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-4 text-center">
-              <div className="text-sm text-zinc-400">Lost revenue per day</div>
-              <div className="mt-1 text-2xl font-bold text-rose-400">${fmt(day)}</div>
-            </div>
-            <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-4 text-center">
-              <div className="text-sm text-zinc-400">Lost revenue per month</div>
-              <div className="mt-1 text-2xl font-bold text-rose-400">${fmt(month)}</div>
-            </div>
-            <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-4 text-center">
-              <div className="text-sm text-zinc-400">Lost revenue per year</div>
-              <div className="mt-1 text-2xl font-bold text-rose-400">${fmt(year)}</div>
-            </div>
-          </div>
-          <p className="mt-2 text-center text-xs text-zinc-500">*Assumes a 25% conversion rate on answered calls.</p>
-          <div className="mt-4 flex justify-center">
-            <a href={CAL_URL} target="_blank" rel="noreferrer" className="inline-flex items-center rounded-full bg-gradient-to-r from-indigo-500 via-sky-500 to-cyan-400 px-5 py-2.5 text-sm font-medium text-white hover:opacity-95">Book a demo — Stop losing money</a>
-          </div>
-        </div>
+    <div className="relative min-h-screen bg-[#050505] text-slate-100 overflow-hidden font-sans selection:bg-purple-500/30">
+      {/* Cursor Glow Overlay */}
+      <CursorGlow />
+
+      {/* Background FX */}
+      <div className="pointer-events-none fixed inset-0 z-0">
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 h-[600px] w-[600px] bg-purple-600/10 blur-[120px] rounded-full mix-blend-screen" />
+        <div className="absolute bottom-0 right-0 h-[400px] w-[400px] bg-blue-600/5 blur-[100px] rounded-full mix-blend-screen" />
       </div>
-    </section>
-  );
-};
 
-/*******************************************************
- AutoFuse AI — Voice AI Agency (Inflate‑style, compact)
- Single‑file React + Tailwind SPA (< 1000 lines)
- Header pages: Solutions • Case studies • How it works
- Notes:
-  - No pricing shown
-  - Cal.com CTA included
-  - "Try now" form posts to provided Make webhook
-*******************************************************/
+      {/* Page Content */}
+      <div className="relative z-10 flex min-h-screen flex-col">
+        <NavBar />
+        <main className="flex-1">
+          <HeroSection />
+          <MissedMoneySection />
+          <ServicesSplitSection />
+          <LiveDemoSection />
+          <TestimonialsSection />
+          <ProcessSection />
+          <FinalCTASection />
+        </main>
+        <SiteFooter />
+      </div>
 
-/********************
- * Config & Content *
- ********************/
-const CAL_URL = "https://cal.com/taha-issaoui-g9ve4z/discovery";
-const WEBHOOK_URL = "https://hook.eu2.make.com/v44z8mircvlc9lyt4casscehkh2nb531";
-
-const NAV = [
-  { label: "Solutions", route: "solutions" },
-  { label: "Case studies", route: "case-studies" },
-  { label: "How it works", route: "how-it-works" },
-];
-
-const INTEGRATIONS = [
-  "Retell AI",
-  "Vapi",
-  "ElevenLabs",
-  "Twilio",
-  "Salesforce",
-  "Make.com",
-  "Zapier",
-  "HubSpot",
-  "Airtable",
-  "Slack",
-];
-
-const TESTIMONIALS = [
-  {
-    company: "Landscaping Company",
-    headline: "Voice AI Wizard for inbound booking",
-    quote:
-      "Completed quickly and guided us through building an AI Voice Assistant. Thorough, knowledgeable, and helpful.",
-    stars: 5,
-    tag: "Voice Agent",
-  },
-  {
-    company: "Dental Practice",
-    headline: "Virtual AI Receptionist",
-    quote:
-      "Our phone flow was rebuilt with Retell AI. Patients get scheduled automatically and we save time daily.",
-    stars: 5,
-    tag: "Healthcare",
-  },
-  {
-    company: "Property Management",
-    headline: "Salesforce + Retell AI Integration",
-    quote: "Seamless integration and clear automation expertise. Highly recommend!",
-    stars: 5,
-    tag: "Integration",
-  },
-];
-
-const CASE_STUDIES = [
-  {
-    id: "lux-travel",
-    industry: "Luxury Travel",
-    title: "Instant Lead Callback Voice Agent",
-    summary:
-      "AI receptionist calls new leads within seconds, captures intent, and books discovery calls automatically.",
-    impact: ["165+ extra bookings / mo", "Sub‑60s lead response", "24/7 availability"],
-    badges: ["Voice AI", "Lead Qualifying", "Scheduling"],
-  },
-  {
-    id: "pm-company",
-    industry: "Property Management",
-    title: "Answering & Routing 200+ Monthly Calls",
-    summary: "Agent answers, routes, and schedules maintenance. Integrated with Salesforce + job scheduler.",
-    impact: ["3 hours saved daily", "Faster lead handling", "Happier tenants"],
-    badges: ["Salesforce", "Telephony", "Scheduling"],
-  },
-  {
-    id: "managed-it",
-    industry: "Managed IT",
-    title: "AI Support Line Resolves 60% of Calls",
-    summary: "Automated after‑hours support verifies customers and resolves common tickets.",
-    impact: ["60% calls resolved", "200+ calls/month handled", "Night & weekend coverage"],
-    badges: ["Triage", "Knowledge Base", "Ticketing"],
-  },
-];
-
-/*****************
- * Tiny utilities *
- *****************/
-function classNames(...c) {
-  return c.filter(Boolean).join(" ");
-}
-
-function useHashRoute(defaultRoute = "home") {
-  const [route, setRoute] = useState(() =>
-    typeof window !== "undefined" && window.location.hash
-      ? window.location.hash.replace("#", "")
-      : defaultRoute
-  );
-  useEffect(() => {
-    const onHash = () => setRoute(window.location.hash.replace("#", "") || defaultRoute);
-    window.addEventListener("hashchange", onHash);
-    return () => window.removeEventListener("hashchange", onHash);
-  }, [defaultRoute]);
-  const push = (r) => {
-    if (typeof window !== "undefined") window.location.hash = r;
-    setRoute(r);
-  };
-  return [route, push];
-}
-
-function useMouseTrail() {
-  const ref = useRef(null);
-  useEffect(() => {
-    const el = ref.current;
-    if (!el) return;
-    const move = (e) => {
-      const { clientX: x, clientY: y } = e;
-      el.style.setProperty("--x", `${x}px`);
-      el.style.setProperty("--y", `${y}px`);
-    };
-    window.addEventListener("mousemove", move);
-    return () => window.removeEventListener("mousemove", move);
-  }, []);
-  return ref;
-}
-
-/***************************************
- * Background effects (grid + spotlight)
- ***************************************/
-const BackgroundFX = () => {
-  const trailRef = useMouseTrail();
-  return (
-    <div className="pointer-events-none fixed inset-0 -z-10 overflow-hidden">
-      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,rgba(40,40,40,0.6),transparent_50%)]" />
-      <div
-        className="absolute inset-0"
-        style={{
-          backgroundImage:
-            "linear-gradient(rgba(255,255,255,0.05) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.05) 1px, transparent 1px)",
-          backgroundSize: "40px 40px, 40px 40px",
-          maskImage:
-            "radial-gradient(ellipse at center, rgba(0,0,0,0.8), rgba(0,0,0,0.2) 60%, transparent)",
-        }}
-      />
-      <div
-        ref={trailRef}
-        className="absolute inset-0"
-        style={{
-          background:
-            "radial-gradient(200px_200px_at_var(--x)_var(--y), rgba(99,102,241,0.18), transparent 60%)",
-        }}
-      />
-      <div className="absolute -top-24 -left-24 h-72 w-72 rounded-full bg-indigo-500/20 blur-3xl" />
-      <div className="absolute bottom-0 right-0 h-96 w-96 rounded-full bg-sky-500/10 blur-3xl" />
+      {/* Global Styles for Special FX */}
+      <StyleFX />
     </div>
   );
-};
+}
 
-/****************
- * Header / Nav *
- ****************/
-const Header = ({ route, onNavigate }) => {
-  const [open, setOpen] = useState(false);
+// Sticky Glassmorphism NavBar
+const NavBar: React.FC = () => {
+  const calUrl = "https://cal.com/taha-issaoui-g9ve4z/discovery";
+
   return (
-    <header id="app-header" className="sticky top-0 z-50 border-b border-white/10 backdrop-blur supports-[backdrop-filter]:bg-[#0a0a0a]/60">
-      <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-3">
-        <a href="#home" onClick={(e)=>{e.preventDefault(); onNavigate("home");}} className="group inline-flex items-center gap-2">
-          <div className="h-8 w-8 rounded-xl bg-gradient-to-br from-indigo-500 via-sky-400 to-cyan-300 p-[2px]">
-            <div className="relative flex h-full w-full items-center justify-center rounded-[10px] bg-[#0a0a0a]">
-              <svg width="16" height="16" viewBox="0 0 20 20" aria-hidden="true">
-                <defs>
-                  <linearGradient id="af-g" x1="0" x2="1" y1="0" y2="1">
-                    <stop offset="0%" stopColor="#6366f1" />
-                    <stop offset="100%" stopColor="#06b6d4" />
-                  </linearGradient>
-                </defs>
-                <path d="M2 10c2 0 2-4 4-4s2 4 4 4 2-4 4-4 2 4 4 4" fill="none" stroke="url(#af-g)" strokeWidth="1.6" strokeLinecap="round" />
-              </svg>
+    <header className="sticky top-0 z-50 border-b border-white/5 bg-black/60 backdrop-blur-xl transition-all duration-300">
+      <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-4 sm:px-6 lg:px-8">
+        <a href="#hero" className="group flex items-center gap-3">
+          {/* Logo: Phone + Wave */}
+          <div className="relative flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-tr from-purple-600 via-blue-600 to-cyan-500 shadow-[0_0_20px_rgba(124,58,237,0.3)] transition-transform group-hover:scale-105">
+            <Phone className="h-5 w-5 text-white fill-white/20" />
+          </div>
+          <div className="leading-tight">
+            <div className="text-sm font-bold tracking-wide text-white">
+              AutoFuse AI
             </div>
           </div>
-          <span className="text-lg font-semibold tracking-tight text-white">AutoFuse <span className="text-indigo-400">AI</span></span>
         </a>
 
-        <nav className="hidden md:flex flex-1 items-center justify-center gap-1">
-          {NAV.map((item)=> (
-            <a key={item.label} href={`#${item.route}`} onClick={(e)=>{e.preventDefault(); onNavigate(item.route);}} className={classNames("rounded-full px-3 py-2 text-sm transition hover:bg-white/5", route===item.route?"text-white":"text-zinc-300 hover:text-white")}>{item.label}</a>
-          ))}
+        <nav className="hidden items-center gap-8 text-xs font-medium text-slate-400 md:flex">
+          <a href="#calculator" className="nav-link hover:text-white transition-colors">Missed Revenue</a>
+          <a href="#services" className="nav-link hover:text-white transition-colors">Capabilities</a>
+          <a href="#demo" className="nav-link hover:text-white transition-colors">Live Demo</a>
+          <a href="#testimonials" className="nav-link hover:text-white transition-colors">Results</a>
         </nav>
-        <a href={CAL_URL} target="_blank" rel="noreferrer" className="hidden md:inline-flex ml-4 rounded-full bg-gradient-to-r from-indigo-500 via-sky-500 to-cyan-400 px-4 py-2 text-sm font-medium text-white hover:opacity-95">Book a Free Call</a>
 
-        <button onClick={()=>setOpen(s=>!s)} className="md:hidden inline-flex h-10 w-10 items-center justify-center rounded-xl border border-white/10 bg-white/5 text-white" aria-label="Toggle menu">
-          <svg width="18" height="18" viewBox="0 0 18 18" className="opacity-90"><path d="M2 4h14M2 9h14M2 14h14" stroke="currentColor" strokeWidth="1.5"/></svg>
-        </button>
+        <div className="flex items-center gap-2">
+          <a
+            href={calUrl}
+            className="neon-button hidden rounded-full px-6 py-2.5 text-xs font-bold text-slate-950 shadow-lg shadow-purple-500/20 sm:inline-flex"
+            target="_blank"
+            rel="noreferrer"
+          >
+            Book Strategy Call
+          </a>
+        </div>
       </div>
-
-      <AnimatePresence>
-        {open && (
-          <motion.div initial={{height:0,opacity:0}} animate={{height:"auto",opacity:1}} exit={{height:0,opacity:0}} className="md:hidden border-t border-white/10">
-            <div className="space-y-1 px-4 py-4">
-              {NAV.map((item)=> (
-                <a key={item.label} href={`#${item.route}`} onClick={(e)=>{e.preventDefault(); setOpen(false); onNavigate(item.route);}} className="block rounded-lg px-3 py-2 text-zinc-300 hover:bg-white/5 hover:text-white">{item.label}</a>
-              ))}
-              <a href={CAL_URL} target="_blank" rel="noreferrer" className="block rounded-lg bg-white/5 px-3 py-2 text-white hover:bg-white/10">Book a Free Call</a>
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
     </header>
   );
 };
 
-/****************
- * Hero / Home  *
- ****************/
-const HomePage = ({ onNavigate }) => (
-  <div className="relative">
-    <section className="mx-auto max-w-7xl px-4 py-20 sm:py-28">
-      <div className="grid items-center gap-10 md:grid-cols-2">
-        <div className="md:col-span-2">
-          <div className="mx-auto flex w-fit items-center justify-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs text-zinc-300">
-            <span className="h-1.5 w-1.5 rounded-full bg-gradient-to-r from-indigo-500 via-sky-500 to-cyan-400" />
-            Building custom AI Automations & Agents
-          </div>
-          <h1 className="mt-5 text-center text-4xl font-semibold tracking-tight text-white sm:text-6xl">
-            Scale fast and cut costs with <span className="bg-gradient-to-r from-indigo-400 via-sky-400 to-cyan-300 bg-clip-text text-transparent">AI workers</span>
-          </h1>
-          <p className="mx-auto mt-6 max-w-xl text-center text-zinc-300">We build AI Voice, Chat & Automation Agents tailored to your workflows — boosting revenue and saving time, 24/7.</p>
-          <div className="mt-8 flex items-center justify-center">
-            <a href={CAL_URL} target="_blank" rel="noreferrer" className="inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-indigo-500 via-sky-500 to-cyan-400 px-6 py-3 text-sm font-medium text-white shadow-lg shadow-cyan-500/10 hover:opacity-95 focus:outline-none focus:ring-2 focus:ring-indigo-500/40">
-              <svg width="18" height="18" viewBox="0 0 24 24" className="opacity-90 group-hover:translate-x-0.5 transition-transform"><path d="M5 12h14M13 5l7 7-7 7" stroke="currentColor" strokeWidth="1.5" fill="none"/></svg>
-              Book a discovery call
-            </a>
-          </div>
-          <p className="mt-6 text-center text-xs text-zinc-400">
-            Works with your existing stack • No platform lock-in • You fully own the agent
-          </p>
-          <SoundWaves />
-        </div>
+// Hero Section (Centered & Improved)
+const HeroSection: React.FC = () => {
+  const calUrl = "https://cal.com/taha-issaoui-g9ve4z/discovery";
 
-        
-      </div>
-    </section>
-
-    <MissedMoneyCalculator />
-
-    <TryCallSection />
-
-    {/* Popular Agentic Services */}
-    <section className="mx-auto max-w-7xl px-4 pb-8 sm:pb-16">
-      <HeaderBlock eyebrow="SOLUTIONS" title="Popular Agentic Services" subtitle="Automate phone calls, chat conversations, and daily tasks with reliable, human‑like Agents."/>
-      <div className="mt-10 grid gap-6 md:grid-cols-3">
-        <ServiceCard title="Voice Agents" desc="Qualify leads, schedule meetings, and instantly route them to the right rep — no human needed." bullets={["Inbound & outbound","CRM updates","Appointment booking","Post‑call notes"]} gradient="from-indigo-500/20 via-sky-500/10 to-transparent"/>
-        <ServiceCard title="Chat Agents" desc="Answer instantly, resolve FAQs, and guide every user to the right place — all in real time." bullets={["Website widget","Knowledge base","Smart routing","Analytics"]} gradient="from-sky-500/20 via-cyan-400/10 to-transparent"/>
-        <ServiceCard title="Automation Agents" desc="Capture buyer intent, engage leads, and solve requests automatically — with a human tone." bullets={["Workflows","Integrations","Data sync","Human handoff"]} gradient="from-cyan-400/20 via-teal-400/10 to-transparent"/>
-      </div>
-    </section>
-
-    {/* Benefits */}
-    <section className="mx-auto max-w-7xl px-4 py-12">
-      <HeaderBlock eyebrow="BENEFITS" title="What you get" subtitle="Fast response, happier customers, and more time for your team."/>
-      <div className="mt-8 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
-        {[{title:"Instant replies, 24/7",desc:"Pick up calls instantly — even at night — so you don’t lose leads or keep customers waiting."},{title:"Save time for your team",desc:"Agents handle repetitive calls so your team can focus on high‑value work."},{title:"Works with your systems",desc:"Connect to your CRM, schedulers, and tools for a seamless fit."},{title:"You fully own the agent",desc:"Once built, it’s yours — no platform lock‑in."}].map((b)=> <Benefit key={b.title} {...b}/>) }
-      </div>
-    </section>
-
-    {/* Integrations Marquee */}
-    <section className="mx-auto max-w-7xl px-4 py-16">
-      <div className="rounded-3xl border border-white/10 bg-white/[0.02] p-6">
-        <div className="flex items-center justify-between gap-4">
-          <span className="text-sm text-zinc-400">Works with</span>
-          <div className="relative flex-1 overflow-hidden">
-            <div className="animate-marquee whitespace-nowrap text-zinc-300/90">
-              {INTEGRATIONS.concat(INTEGRATIONS).map((n,i)=> (
-                <span key={i} className="mx-6 inline-flex items-center gap-2 text-sm"><span className="h-1.5 w-1.5 rounded-full bg-zinc-500"/>{n}</span>
-              ))}
+  return (
+    <section
+      id="hero"
+      className="relative flex min-h-[90vh] flex-col items-center justify-center px-4 pb-20 pt-24 text-center sm:px-6 lg:px-8 overflow-hidden"
+    >
+      <Reveal>
+        <div className="mx-auto max-w-4xl space-y-10 relative z-10">
+          
+          {/* Centered Badge - Cleaned Up */}
+          <div className="flex justify-center w-full">
+            <div className="inline-flex items-center gap-3 rounded-full border border-white/10 bg-white/5 px-5 py-2 text-xs font-medium text-slate-300 backdrop-blur-md shadow-lg shadow-purple-500/10">
+              <span className="relative flex h-2 w-2">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+              </span>
+              <span className="tracking-wide">Trusted by 20+ businesses worldwide</span>
             </div>
           </div>
-          <a href="#solutions" onClick={(e)=>{e.preventDefault(); onNavigate("solutions");}} className="rounded-full bg-white/5 px-4 py-2 text-xs text-zinc-200 hover:bg-white/10">View solutions</a>
-        </div>
-      </div>
-    </section>
 
-    {/* Testimonials */}
-    <section className="mx-auto max-w-7xl px-4 py-12 sm:py-20">
-      <HeaderBlock eyebrow="TESTIMONIALS" title="Our success stories" subtitle="Real client feedback from recent builds."/>
-      <div className="mt-10 grid gap-6 md:grid-cols-3">{TESTIMONIALS.map((t,i)=> <Testimonial key={i} {...t}/> )}</div>
-      <div className="mt-10 flex justify-center"><a href={CAL_URL} target="_blank" rel="noreferrer" className="rounded-full bg-gradient-to-r from-indigo-500 via-sky-500 to-cyan-400 px-5 py-2.5 text-sm font-medium text-white hover:opacity-95">Book a free call</a></div>
-    </section>
-  </div>
-);
+          {/* Headline */}
+          <div className="space-y-6">
+            <h1 className="mx-auto max-w-4xl text-balance text-5xl font-bold tracking-tight text-white sm:text-6xl lg:text-7xl leading-[1.05]">
+              Never miss a lead <br />
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-400 via-blue-400 to-cyan-400">
+                with Voice AI
+              </span>
+            </h1>
+            
+            <p className="mx-auto max-w-2xl text-lg text-slate-400 leading-relaxed font-light">
+              Your 24/7 AI receptionist answers every call, qualifies prospects, and books revenue instantly. No sick days. No missed opportunities.
+            </p>
+          </div>
 
-/****************
- * Solutions    *
- ****************/
-const SolutionsPage = () => {
-  const blocks = [
-    {title:"Voice Agents",desc:"Deploy receptionists, outbound callers, and post‑call note takers. Book meetings, route calls, and update your CRM.",bullets:["Inbound IVR / Smart routing","Calendar booking","Lead qualification","CRM updates & notes","Workflows via Make/Zapier"],accent:"from-indigo-500/30 via-sky-500/10 to-transparent"},
-    {title:"Chat Agents",desc:"Instant answers on your site and support channels. Pulls from your docs and guides users to the right step.",bullets:["Website widget + handoff","Knowledge grounding","Identity & context","Analytics"],accent:"from-sky-500/30 via-cyan-400/10 to-transparent"},
-    {title:"Automation Agents",desc:"Let agents execute real work — create tickets, update records, and trigger workflows across your stack.",bullets:["Make.com & Zapier","Salesforce, HubSpot, Airtable","CRM bi‑directional sync","Human approval checkpoints"],accent:"from-cyan-400/30 via-teal-400/10 to-transparent"},
-  ];
-  return (
-    <div className="mx-auto max-w-7xl px-4 py-12 sm:py-16">
-      <HeaderBlock eyebrow="SOLUTIONS" title="Intelligent AI solutions designed for growth" subtitle="We build bespoke Voice, Chat & Automation Agents that your team can trust in production."/>
-      <div className="mt-10 grid gap-6 md:grid-cols-3">{blocks.map((b)=> <ServiceCard key={b.title} {...b}/>)}</div>
-      <div className="mt-16 grid gap-6 lg:grid-cols-2">
-        <CompareCard/>
-        <div className="rounded-3xl border border-white/10 bg-white/[0.02] p-6">
-          <h3 className="text-xl font-semibold text-white">Works with your existing systems</h3>
-          <p className="mt-2 text-sm text-zinc-300">We connect to your CRM, schedulers, calendars & workflows, fitting right into your business without adding complexity.</p>
-          <div className="mt-4 flex flex-wrap gap-2">{INTEGRATIONS.slice(0,10).map((n)=> <span key={n} className="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs text-zinc-300">{n}</span>)}</div>
+          {/* CTA */}
+          <div className="flex flex-col items-center gap-5 sm:flex-row sm:justify-center pt-2">
+            <a
+              href={calUrl}
+              className="neon-button inline-flex h-14 min-w-[200px] items-center justify-center rounded-full px-8 text-sm font-bold text-slate-950 transition-transform hover:scale-105"
+              target="_blank"
+              rel="noreferrer"
+            >
+              Book Strategy Call
+            </a>
+            
+            <a 
+              href="#demo"
+              className="group inline-flex h-14 items-center justify-center rounded-full px-8 text-sm font-bold text-white transition-colors hover:text-purple-400"
+            >
+              Try Live Demo <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
+            </a>
+          </div>
+
+          {/* Improved Hero Visual Abstract - Siri Orb Style */}
+          <div className="relative mt-20 flex justify-center perspective-1000">
+             <div className="relative h-64 w-64 sm:h-80 sm:w-80 flex items-center justify-center">
+                {/* Core Orb */}
+                <div className="absolute inset-0 rounded-full bg-gradient-to-tr from-purple-600 via-blue-600 to-cyan-500 blur-[40px] opacity-40 animate-pulse" />
+                <div className="absolute inset-4 rounded-full bg-black/80 backdrop-blur-xl border border-white/10 flex items-center justify-center shadow-[0_0_50px_rgba(124,58,237,0.3)]">
+                    <WaveformCircle />
+                </div>
+             </div>
+          </div>
         </div>
-      </div>
-    </div>
+      </Reveal>
+    </section>
   );
 };
 
-/****************
- * Case Studies  *
- ****************/
-const CaseStudiesPage = () => (
-  <div className="mx-auto max-w-7xl px-4 py-12 sm:py-16">
-    <HeaderBlock eyebrow="CASE STUDIES" title="Real outcomes from production agents" subtitle="A snapshot of recent projects and the impact they delivered."/>
-    <div className="mt-10 grid gap-6 md:grid-cols-3">{CASE_STUDIES.map((cs)=> <CaseStudyCard key={cs.id} {...cs}/>)}</div>
-    <div className="mt-16 flex flex-col items-center gap-3 rounded-3xl border border-white/10 bg-white/[0.02] px-6 py-10 text-center">
-      <h3 className="text-xl font-semibold text-white">Have a use case in mind?</h3>
-      <p className="max-w-2xl text-sm text-zinc-300">We’ll map your ideal conversation, connect your tools, and launch a reliable agent. Start with a discovery call.</p>
-      <a href={CAL_URL} target="_blank" rel="noreferrer" className="rounded-full bg-white/10 px-5 py-2.5 text-white hover:bg-white/20">Book a discovery call</a>
-    </div>
-  </div>
-);
+// Section 2: Missed Money Calculator
+const MissedMoneySection: React.FC = () => {
+  const [missedCalls, setMissedCalls] = useState<string>("5");
+  const [clientValue, setClientValue] = useState<string>("800");
+  const [closeRate, setCloseRate] = useState<string>("30");
 
-/****************
- * How It Works  *
- ****************/
-const HowItWorksPage = () => {
-  const steps = [
-    { n: "01", title: "Introductory Call", desc: "We learn about your business and figure out what kind of agent you need." },
-    { n: "02", title: "Discovery", desc: "We plan from start to finish and design for high impact." },
-    { n: "03", title: "Development", desc: "We build the agent & automations and connect your systems." },
-    { n: "04", title: "Testing & Launch", desc: "Rigorous testing, then go‑live with monitoring in place." },
-  ];
+  const parsedMissed = Number.parseFloat(missedCalls) || 0;
+  const parsedValue = Number.parseFloat(clientValue) || 0;
+  const parsedClose = Number.parseFloat(closeRate) || 0;
+
+  const lostPerMonth = parsedMissed * parsedValue * (parsedClose / 100) * 30;
+
   return (
-    <div className="mx-auto max-w-7xl px-4 py-12 sm:py-16">
-      <HeaderBlock eyebrow="HOW IT WORKS" title="Getting started is easy" subtitle="A clear process from call to launch so you always know what’s next."/>
-      <div className="mt-10 grid gap-6 lg:grid-cols-4">{steps.map((s)=> (
-        <motion.div key={s.n} initial={{opacity:0,y:16}} whileInView={{opacity:1,y:0}} viewport={{once:true,amount:0.3}} transition={{duration:0.4}} className="rounded-3xl border border-white/10 bg-white/[0.02] p-6">
-          <div className="text-sm text-zinc-400">{s.n}</div>
-          <h3 className="mt-2 text-lg font-semibold text-white">{s.title}</h3>
-          <p className="mt-2 text-sm text-zinc-300">{s.desc}</p>
-        </motion.div>
-      ))}</div>
-      <div className="mt-16 grid gap-6 lg:grid-cols-2">
-        <CompareCard/>
-        <div className="rounded-3xl border border-white/10 bg-white/[0.02] p-6">
-          <h3 className="text-xl font-semibold text-white">Why top teams choose us</h3>
-          <ul className="mt-4 space-y-2 text-sm text-zinc-300">
-            <li className="flex items-start gap-2"><Dot/> Experienced prompt engineers & automation builders</li>
-            <li className="flex items-start gap-2"><Dot/> Complete custom development with rigorous testing</li>
-            <li className="flex items-start gap-2"><Dot/> Connections with major agent platforms and telephony</li>
-          </ul>
-          <a href={CAL_URL} target="_blank" rel="noreferrer" className="mt-6 inline-flex rounded-full bg-white/10 px-4 py-2 text-sm text-white hover:bg-white/20">Book a discovery call</a>
-        </div>
+    <section
+      id="calculator"
+      className="relative border-y border-white/5 bg-[#080808] py-24"
+    >
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(56,189,248,0.03),transparent_70%)]" />
+      
+      <div className="relative mx-auto flex max-w-6xl flex-col gap-12 px-4 sm:px-6 lg:px-8 lg:flex-row lg:items-center">
+        {/* Copy */}
+        <Reveal>
+          <div className="max-w-md space-y-6">
+            <div className="flex items-center gap-2">
+              <Activity className="h-4 w-4 text-purple-400" />
+              <p className="text-xs font-bold uppercase tracking-[0.2em] text-purple-300">
+                The Cost of Silence
+              </p>
+            </div>
+            <h2 className="text-3xl font-bold tracking-tight text-white sm:text-4xl">
+              Your missed calls are expensive.
+            </h2>
+            <p className="text-base text-slate-400 leading-relaxed">
+              Every time the phone rings and goes to voicemail, you lose money. Use this calculator to see exactly how much revenue leaks out of your business every month.
+            </p>
+          </div>
+        </Reveal>
+
+        {/* Calculator Card */}
+        <Reveal delay={120}>
+          <div className="glass-card w-full max-w-xl rounded-3xl border border-white/10 bg-white/5 p-8 shadow-[0_0_50px_rgba(0,0,0,0.5)] backdrop-blur-2xl">
+            <form className="space-y-6">
+              <div className="grid gap-6 sm:grid-cols-2">
+                <div className="space-y-2">
+                  <label className="block text-xs font-medium text-slate-400 uppercase tracking-wide">
+                    Missed Calls / Day
+                  </label>
+                  <input
+                    type="number"
+                    min={0}
+                    value={missedCalls}
+                    onChange={(e) => setMissedCalls(e.target.value)}
+                    className="w-full rounded-xl border border-white/10 bg-black/60 px-4 py-3 text-sm text-slate-100 outline-none ring-purple-500/20 focus:border-purple-500 focus:ring-2 transition-all"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <label className="block text-xs font-medium text-slate-400 uppercase tracking-wide">
+                    Avg. Client Value ($)
+                  </label>
+                  <input
+                    type="number"
+                    min={0}
+                    value={clientValue}
+                    onChange={(e) => setClientValue(e.target.value)}
+                    className="w-full rounded-xl border border-white/10 bg-black/60 px-4 py-3 text-sm text-slate-100 outline-none ring-purple-500/20 focus:border-purple-500 focus:ring-2 transition-all"
+                  />
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <label className="block text-xs font-medium text-slate-400 uppercase tracking-wide">
+                  Closing Rate (%)
+                </label>
+                <div className="relative">
+                    <input
+                    type="number"
+                    min={0}
+                    max={100}
+                    value={closeRate}
+                    onChange={(e) => setCloseRate(e.target.value)}
+                    className="w-full rounded-xl border border-white/10 bg-black/60 px-4 py-3 text-sm text-slate-100 outline-none ring-purple-500/20 focus:border-purple-500 focus:ring-2 transition-all"
+                    />
+                    <div className="absolute right-4 top-3 text-slate-500 text-sm pointer-events-none">%</div>
+                </div>
+              </div>
+
+              <div className="mt-6 rounded-2xl border border-rose-500/30 bg-rose-500/10 p-6 shadow-[0_0_30px_rgba(225,29,72,0.1)]">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-[10px] font-bold uppercase tracking-widest text-rose-400 mb-1">
+                      Revenue Lost / Month
+                    </p>
+                    <p className="text-3xl font-bold text-white tracking-tight">
+                      {lostPerMonth <= 0
+                        ? "$0"
+                        : lostPerMonth.toLocaleString("en-US", {
+                            style: "currency",
+                            currency: "USD",
+                            maximumFractionDigits: 0,
+                          })}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </form>
+          </div>
+        </Reveal>
       </div>
-    </div>
+    </section>
   );
 };
 
-/****************
- * Components   *
- ****************/
-const HeaderBlock = ({ eyebrow, title, subtitle }) => (
-  <div className="mx-auto max-w-3xl text-center">
-    <div className="text-xs font-medium tracking-wider text-zinc-400">{eyebrow}</div>
-    <h2 className="mt-2 text-2xl font-semibold text-white sm:text-3xl">{title}</h2>
-    {subtitle && <p className="mt-2 text-sm text-zinc-300">{subtitle}</p>}
-  </div>
-);
+// Section 3: Services Split (Inbound vs Outbound)
+const ServicesSplitSection: React.FC = () => {
+    return (
+      <section id="services" className="relative py-24 bg-[#050505]">
+        <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
+          <Reveal>
+            <div className="text-center mb-16 space-y-4">
+               <h2 className="text-3xl font-bold tracking-tight text-white sm:text-4xl">Total Voice Coverage.</h2>
+               <p className="text-slate-400 max-w-2xl mx-auto">
+                   Most agencies only do one. We build complete voice autonomy for your business.
+               </p>
+            </div>
+          </Reveal>
+  
+          <div className="grid md:grid-cols-2 gap-8">
+            {/* Inbound Card */}
+            <Reveal delay={100}>
+                <div className="group relative h-full rounded-3xl border border-white/10 bg-gradient-to-b from-white/5 to-transparent p-8 hover:border-blue-500/30 transition-all duration-500">
+                    <div className="mb-6 inline-flex h-12 w-12 items-center justify-center rounded-xl bg-blue-500/10 text-blue-400">
+                        <PhoneIncoming className="h-6 w-6" />
+                    </div>
+                    <h3 className="text-xl font-bold text-white mb-3">Inbound Receptionist</h3>
+                    <p className="text-slate-400 text-sm leading-relaxed mb-6">
+                        Never put a customer on hold again. The AI answers immediately, answers FAQs, checks your calendar availability, and books appointments directly into your schedule.
+                    </p>
+                    <ul className="space-y-3">
+                        <li className="flex items-center gap-3 text-sm text-slate-300">
+                            <CheckCircle className="h-4 w-4 text-blue-500" /> 24/7 Availability
+                        </li>
+                        <li className="flex items-center gap-3 text-sm text-slate-300">
+                            <CheckCircle className="h-4 w-4 text-blue-500" /> Instant Scheduling
+                        </li>
+                    </ul>
+                </div>
+            </Reveal>
 
-const ServiceCard = ({ title, desc, bullets = [], gradient = "from-indigo-500/20 via-sky-500/10 to-transparent" }) => (
-  <motion.div initial={{opacity:0,y:16}} whileInView={{opacity:1,y:0}} viewport={{once:true,amount:0.2}} transition={{duration:0.4}} className="relative overflow-hidden rounded-3xl border border-white/10 bg-white/[0.02] p-6">
-    <div className={classNames("pointer-events-none absolute -inset-1 rounded-3xl bg-gradient-to-br blur-xl", gradient)} />
-    <div className="relative">
-      <div className="mx-auto inline-flex items-center justify-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs text-zinc-300"><span className="h-1.5 w-1.5 rounded-full bg-zinc-500"/>Agent type</div>
-      <h3 className="mt-3 text-lg font-semibold text-white">{title}</h3>
-      <p className="mt-2 text-sm text-zinc-300">{desc}</p>
-      <ul className="mt-4 space-y-2 text-sm text-zinc-300">{bullets.map((b,i)=> <li key={i} className="flex items-start gap-2"><Dot/>{b}</li>)}</ul>
-    </div>
-  </motion.div>
-);
+            {/* Outbound Card */}
+            <Reveal delay={200}>
+                <div className="group relative h-full rounded-3xl border border-white/10 bg-gradient-to-b from-white/5 to-transparent p-8 hover:border-purple-500/30 transition-all duration-500">
+                    <div className="mb-6 inline-flex h-12 w-12 items-center justify-center rounded-xl bg-purple-500/10 text-purple-400">
+                        <PhoneOutgoing className="h-6 w-6" />
+                    </div>
+                    <h3 className="text-xl font-bold text-white mb-3">Outbound Sales</h3>
+                    <p className="text-slate-400 text-sm leading-relaxed mb-6">
+                        Turn old leads into new cash. The AI calls your database, qualifies interest, reactivates dormant customers, and transfers hot leads to your team.
+                    </p>
+                    <ul className="space-y-3">
+                        <li className="flex items-center gap-3 text-sm text-slate-300">
+                            <CheckCircle className="h-4 w-4 text-purple-500" /> Lead Reactivation
+                        </li>
+                        <li className="flex items-center gap-3 text-sm text-slate-300">
+                            <CheckCircle className="h-4 w-4 text-purple-500" /> Speed-to-Lead (Under 1 min)
+                        </li>
+                    </ul>
+                </div>
+            </Reveal>
+          </div>
+        </div>
+      </section>
+    );
+  };
 
-// Benefit card used in Home > Benefits
-const Benefit = ({ title, desc }) => (
-  <div className="rounded-3xl border border-white/10 bg-white/[0.02] p-6">
-    <div className="flex items-start gap-3">
-      <span className="mt-1 h-2 w-2 shrink-0 rounded-full bg-gradient-to-r from-indigo-500 via-sky-500 to-cyan-400" />
-      <div>
-        <h3 className="text-white font-semibold">{title}</h3>
-        <p className="mt-2 text-sm text-zinc-300">{desc}</p>
-      </div>
-    </div>
-  </div>
-);
+// Section 4: Live Demo Webhook Form (With Disabled Logic)
+const LiveDemoSection: React.FC = () => {
+  const [fullName, setFullName] = useState("");
+  const [email, setEmail] = useState("");
+  const [phone, setPhone] = useState("");
+  const [website, setWebsite] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+  const [status, setStatus] = useState<null | "success" | "error">(null);
 
-// CompareCard — used on Solutions & How It Works
-const CompareCard = () => (
-  <div className="rounded-3xl border border-white/10 bg-white/[0.02] p-6">
-    <h3 className="text-xl font-semibold text-white">Manual vs. With an AI Agent</h3>
-    <div className="mt-4 grid gap-4 sm:grid-cols-2">
-      <div className="rounded-2xl border border-white/10 bg-white/[0.02] p-4">
-        <div className="text-sm font-medium text-zinc-300">Before (Manual)</div>
-        <ul className="mt-2 list-disc space-y-1 pl-5 text-sm text-zinc-400">
-          <li>Missed calls & slow response times</li>
-          <li>Repetitive Q&A handled by staff</li>
-          <li>Notes scattered across tools</li>
-        </ul>
-      </div>
-      <div className="rounded-2xl border border-white/10 bg-white/[0.02] p-4">
-        <div className="text-sm font-medium text-zinc-300">After (AI Agent)</div>
-        <ul className="mt-2 list-disc space-y-1 pl-5 text-sm text-zinc-400">
-          <li>Instant answers & call routing 24/7</li>
-          <li>Bookings & updates sent to your CRM</li>
-          <li>Structured notes for every interaction</li>
-        </ul>
-      </div>
-    </div>
-  </div>
-);
+  // Check if form is valid
+  const isFormValid = fullName.trim() !== "" && email.trim() !== "" && phone.trim() !== "";
 
-const CaseStudyCard = ({ industry, title, summary, impact = [], badges = [] }) => (
-  <div className="relative overflow-hidden rounded-3xl border border-white/10 bg-white/[0.02] p-6">
-    <div className="absolute -inset-1 rounded-3xl bg-gradient-to-br from-indigo-500/10 via-sky-500/5 to-transparent blur-xl" />
-    <div className="relative">
-      <div className="text-xs text-zinc-400">{industry}</div>
-      <h3 className="mt-2 text-center text-lg font-semibold text-white">{title}</h3>
-      <p className="mt-2 text-center text-sm text-zinc-300">{summary}</p>
-      <ul className="mt-4 space-y-2 text-sm text-zinc-300">{impact.map((i,idx)=> <li key={idx} className="flex items-start gap-2"><Dot/>{i}</li>)}</ul>
-      <div className="mt-4 flex flex-wrap gap-2">{badges.map((b)=> <span key={b} className="rounded-full border border-white/10 bg-white/5 px-2.5 py-0.5 text-xs text-zinc-300">{b}</span>)}</div>
-    </div>
-  </div>
-);
-
-const Testimonial = ({ company, headline, quote, stars = 5, tag }) => (
-  <motion.div initial={{opacity:0,y:16}} whileInView={{opacity:1,y:0}} viewport={{once:true,amount:0.2}} transition={{duration:0.4}} className="rounded-3xl border border-white/10 bg-white/[0.02] p-6">
-    <div className="flex items-center justify-between"><div className="text-sm text-zinc-400">{company}</div><span className="rounded-full border border-white/10 bg-white/5 px-2 py-0.5 text-xs text-zinc-300">{tag}</span></div>
-    <h4 className="mt-2 text-white">{headline}</h4>
-    <p className="mt-2 text-sm text-zinc-300">“{quote}”</p>
-    <div className="mt-3"><StarRow n={stars}/></div>
-  </motion.div>
-);
-
-const StarRow = ({ n = 5 }) => (
-  <div className="flex items-center gap-0.5 text-amber-300">
-    {Array.from({ length: 5 }).map((_, i) => (
-      <svg key={i} width="16" height="16" viewBox="0 0 20 20" className={i < n ? "opacity-100" : "opacity-30"}><path fill="currentColor" d="M10 1.8l2.47 5.01 5.53.78-4 3.9.94 5.5L10 14.9l-4.94 2.1.94-5.5-4-3.9 5.53-.78L10 1.8z"/></svg>
-    ))}
-  </div>
-);
-
-const Dot = () => <span className="mt-2 h-1.5 w-1.5 rounded-full bg-zinc-500"/>;
-
-const Spinner = () => (
-  <svg className="h-4 w-4 animate-spin" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" className="fill-none stroke-white/20" strokeWidth="3"/><path d="M22 12a10 10 0 00-10-10" className="fill-none stroke-white" strokeWidth="3"/></svg>
-);
-
-// Animated sound waves (pure SVG, no extra CSS)
-const SoundWaves = () => (
-  <svg viewBox="0 0 1200 150" className="mx-auto mt-8 w-full max-w-4xl" aria-hidden="true">
-    <defs>
-      <linearGradient id="waveGrad" x1="0" x2="1" y1="0" y2="0">
-        <stop offset="0%" stopColor="#6366f1" />
-        <stop offset="100%" stopColor="#06b6d4" />
-      </linearGradient>
-    </defs>
-    <path d="M0 80 C 150 20, 300 140, 450 80 S 750 20, 900 80 S 1050 140, 1200 80" fill="none" stroke="url(#waveGrad)" strokeOpacity="1" strokeWidth="2" strokeLinecap="round" strokeDasharray="200 600">
-      <animate attributeName="stroke-dashoffset" from="0" to="-800" dur="5s" repeatCount="indefinite" />
-    </path>
-    <path d="M0 88 C 150 28, 300 148, 450 88 S 750 28, 900 88 S 1050 148, 1200 88" fill="none" stroke="url(#waveGrad)" strokeOpacity="0.8" strokeWidth="2" strokeLinecap="round" strokeDasharray="200 600">
-      <animate attributeName="stroke-dashoffset" from="0" to="-800" dur="6s" repeatCount="indefinite" />
-    </path>
-    <path d="M0 96 C 150 36, 300 156, 450 96 S 750 36, 900 96 S 1050 156, 1200 96" fill="none" stroke="url(#waveGrad)" strokeOpacity="0.6" strokeWidth="2" strokeLinecap="round" strokeDasharray="200 600">
-      <animate attributeName="stroke-dashoffset" from="0" to="-800" dur="7s" repeatCount="indefinite" />
-    </path>
-    <path d="M0 104 C 150 44, 300 164, 450 104 S 750 44, 900 104 S 1050 164, 1200 104" fill="none" stroke="url(#waveGrad)" strokeOpacity="0.45" strokeWidth="2" strokeLinecap="round" strokeDasharray="200 600">
-      <animate attributeName="stroke-dashoffset" from="0" to="-800" dur="8s" repeatCount="indefinite" />
-    </path>
-    <path d="M0 112 C 150 52, 300 172, 450 112 S 750 52, 900 112 S 1050 172, 1200 112" fill="none" stroke="url(#waveGrad)" strokeOpacity="0.3" strokeWidth="2" strokeLinecap="round" strokeDasharray="200 600">
-      <animate attributeName="stroke-dashoffset" from="0" to="-800" dur="9s" repeatCount="indefinite" />
-    </path>
-  </svg>
-);
-
-/******************************
- * Try‑now lead capture (Home)
- ******************************/
-const TryCallSection = () => {
-  const [form, setForm] = useState({ name: "", email: "", phone: "", company: "" });
-  const [status, setStatus] = useState("idle");
-  const onChange = (e) => setForm((f) => ({ ...f, [e.target.name]: e.target.value }));
-  const tryCall = async (e) => {
+  const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
-    // guard: all fields required
-    if (!form.name || !form.email || !form.phone || !form.company) {
-      setStatus("error");
-      return;
-    }
+    if (!isFormValid) return;
+
+    setIsLoading(true);
+    setStatus(null);
+
     try {
-      setStatus("submitting");
-      const payload = { source: "autofuse-try-call", action: "try_now", ...form, callMe: true, timestamp: new Date().toISOString() };
-      const res = await fetch(WEBHOOK_URL, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload) });
-      if (!res.ok) throw new Error("Webhook error");
+      const webhookUrl = "https://hook.eu2.make.com/v44z8mircvlc9lyt4casscehkh2nb531";
+
+      await fetch(webhookUrl, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          fullName,
+          email,
+          phone,
+          website,
+          source: "autofuse-ai-site-demo",
+          timestamp: new Date().toISOString(),
+        }),
+      });
+
+      setIsLoading(false);
       setStatus("success");
-      setForm({ name: "", email: "", phone: "", company: "" });
-    } catch (err) {
-      console.error(err);
+    } catch (error) {
+      console.error(error);
+      setIsLoading(false);
       setStatus("error");
     }
   };
+
   return (
-    <section className="mx-auto max-w-7xl px-4 pb-8">
-      <div className="rounded-3xl border border-white/10 bg-white/[0.02] p-6 text-center">
-        <div className="text-xs text-zinc-400">TRY IT</div>
-        <h3 className="mt-2 text-2xl font-semibold text-white">Try Our Voice Agent</h3>
-        <p className="mt-2 text-sm text-zinc-300">Enter your details and click <span className="text-white/90">Try now</span>. Our agent will call you.</p>
-        <form onSubmit={tryCall} className="mx-auto mt-6 grid max-w-3xl gap-3 sm:grid-cols-4">
-          <input name="name" value={form.name} onChange={onChange} placeholder="Your name" required className="rounded-2xl border border-white/10 bg-white/[0.03] px-3 py-2 text-sm text-white placeholder:text-zinc-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/40"/>
-          <input name="email" type="email" value={form.email} onChange={onChange} placeholder="Email" required className="rounded-2xl border border-white/10 bg-white/[0.03] px-3 py-2 text-sm text-white placeholder:text-zinc-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/40"/>
-          <input name="phone" value={form.phone} onChange={onChange} placeholder="Phone number" required className="rounded-2xl border border-white/10 bg-white/[0.03] px-3 py-2 text-sm text-white placeholder:text-zinc-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/40"/>
-          <input name="company" value={form.company} onChange={onChange} placeholder="Company" required className="rounded-2xl border border-white/10 bg-white/[0.03] px-3 py-2 text-sm text-white placeholder:text-zinc-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/40"/>
-          <div className="sm:col-span-4 mt-2 flex justify-center">
-            <button type="submit" disabled={status==="submitting" || !form.name || !form.email || !form.phone || !form.company} className="inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-indigo-500 via-sky-500 to-cyan-400 px-5 py-2.5 text-sm font-medium text-white hover:opacity-95 disabled:opacity-60">
-              {status==="submitting" ? <Spinner/> : null}
-              {status==="submitting" ? "Processing…" : "Try now"}
-            </button>
+    <section
+      id="demo"
+      className="relative border-y border-white/5 bg-[#0a0a0a] py-24 overflow-hidden"
+    >
+      <div className="absolute top-0 right-0 h-[600px] w-[600px] bg-gradient-to-b from-purple-900/10 to-transparent blur-3xl opacity-50 pointer-events-none" />
+
+      <div className="mx-auto flex max-w-6xl flex-col gap-16 px-4 sm:px-6 lg:px-8 lg:flex-row lg:items-center">
+        {/* Copy */}
+        <Reveal>
+          <div className="max-w-md space-y-6">
+            <div className="flex items-center gap-2">
+               <span className="flex h-2 w-2 relative">
+                   <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                   <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+               </span>
+               <p className="text-xs font-bold uppercase tracking-[0.2em] text-emerald-400">
+                Live Test
+              </p>
+            </div>
+            <h2 className="text-3xl font-bold tracking-tight text-white sm:text-4xl">
+              Experience the speed.
+            </h2>
+            <p className="text-base text-slate-400 leading-relaxed">
+              Don't just take our word for it. Enter your number below. Our AI will call you immediately. It sounds human, acts fast, and doesn't take breaks.
+            </p>
+            <div className="space-y-4 pt-4 border-t border-white/5">
+                <div className="flex items-center gap-4">
+                    <div className="h-10 w-10 rounded-full bg-white/5 flex items-center justify-center border border-white/10">
+                        <span className="text-xs font-bold text-white">01</span>
+                    </div>
+                    <span className="text-sm text-slate-300">Fill the form</span>
+                </div>
+                <div className="flex items-center gap-4">
+                    <div className="h-10 w-10 rounded-full bg-white/5 flex items-center justify-center border border-white/10">
+                        <span className="text-xs font-bold text-white">02</span>
+                    </div>
+                    <span className="text-sm text-slate-300">Receive a call instantly</span>
+                </div>
+            </div>
           </div>
-        </form>
-        {status==="success" && <p className="mt-3 text-sm text-emerald-400">Got it — check your phone shortly.</p>}
-        {status==="error" && <p className="mt-3 text-sm text-rose-400">Something went wrong — please try again.</p>}
+        </Reveal>
+
+        {/* Demo Form */}
+        <Reveal delay={140}>
+          <div className="glass-card relative w-full max-w-xl rounded-3xl border border-white/10 bg-white/5 p-8 shadow-[0_0_60px_rgba(124,58,237,0.15)] backdrop-blur-3xl">
+            <form className="space-y-5" onSubmit={handleSubmit}>
+              <div className="grid gap-5 sm:grid-cols-2">
+                <div className="space-y-2">
+                  <label className="block text-xs font-medium text-slate-300 uppercase">Full name *</label>
+                  <input
+                    value={fullName}
+                    onChange={(e) => setFullName(e.target.value)}
+                    required
+                    className="w-full rounded-xl border border-white/10 bg-black/60 px-4 py-3 text-sm text-slate-100 outline-none ring-blue-500/20 focus:border-blue-400 focus:ring-2 transition-all"
+                    placeholder="Jordan Good"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <label className="block text-xs font-medium text-slate-300 uppercase">Email *</label>
+                  <input
+                    type="email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    required
+                    className="w-full rounded-xl border border-white/10 bg-black/60 px-4 py-3 text-sm text-slate-100 outline-none ring-blue-500/20 focus:border-blue-400 focus:ring-2 transition-all"
+                    placeholder="you@company.com"
+                  />
+                </div>
+              </div>
+
+              <div className="grid gap-5 sm:grid-cols-2">
+                <div className="space-y-2">
+                  <label className="block text-xs font-medium text-slate-300 uppercase">Phone number *</label>
+                  <input
+                    value={phone}
+                    onChange={(e) => setPhone(e.target.value)}
+                    required
+                    className="w-full rounded-xl border border-white/10 bg-black/60 px-4 py-3 text-sm text-slate-100 outline-none ring-blue-500/20 focus:border-blue-400 focus:ring-2 transition-all"
+                    placeholder="+1 (555) 000-0000"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <label className="block text-xs font-medium text-slate-300 uppercase">Company website</label>
+                  <input
+                    value={website}
+                    onChange={(e) => setWebsite(e.target.value)}
+                    className="w-full rounded-xl border border-white/10 bg-black/60 px-4 py-3 text-sm text-slate-100 outline-none ring-blue-500/20 focus:border-blue-400 focus:ring-2 transition-all"
+                    placeholder="autofuse.ai"
+                  />
+                </div>
+              </div>
+
+              <button
+                type="submit"
+                disabled={!isFormValid || isLoading}
+                className={`mt-4 w-full rounded-xl px-6 py-4 text-sm font-bold text-white shadow-lg transition-all duration-300
+                    ${!isFormValid || isLoading 
+                        ? "bg-slate-800 text-slate-500 cursor-not-allowed shadow-none" 
+                        : "bg-gradient-to-r from-purple-600 to-blue-600 shadow-purple-500/30 hover:brightness-110"}`}
+              >
+                {isLoading ? "Connecting to AI..." : "Call Me Now"}
+              </button>
+
+              {status === "success" && (
+                <div className="flex items-center gap-2 rounded-lg bg-emerald-500/10 p-3 text-xs text-emerald-400 border border-emerald-500/20">
+                  <CheckCircle className="h-4 w-4" />
+                  <span>AI Agent dispatched. Check your phone.</span>
+                </div>
+              )}
+              {status === "error" && (
+                <p className="text-center text-xs text-rose-400">
+                  Connection failed. Please try again.
+                </p>
+              )}
+            </form>
+          </div>
+        </Reveal>
       </div>
     </section>
   );
 };
 
-/***********
- * Footer   *
- ***********/
-const Footer = () => (
-  <footer className="mt-20 border-t border-white/10 px-4 py-10 text-sm text-zinc-400">
-    <div className="mx-auto flex max-w-7xl flex-col gap-6 sm:flex-row sm:items-center sm:justify-between">
-      <div className="flex items-center gap-2">
-        <div className="h-8 w-8 rounded-xl bg-gradient-to-br from-indigo-500 via-sky-400 to-cyan-300 p-[2px]">
-          <div className="relative flex h-full w-full items-center justify-center rounded-[10px] bg-[#0a0a0a]">
-            <svg width="16" height="16" viewBox="0 0 20 20" aria-hidden="true"><defs><linearGradient id="af-g-f" x1="0" x2="1" y1="0" y2="1"><stop offset="0%" stopColor="#6366f1"/><stop offset="100%" stopColor="#06b6d4"/></linearGradient></defs><path d="M2 10c2 0 2-4 4-4s2 4 4 4 2-4 4-4 2 4 4 4" fill="none" stroke="url(#af-g-f)" strokeWidth="1.6" strokeLinecap="round"/></svg>
+// Section 5: Testimonials (Logos & Real Names)
+const TestimonialsSection: React.FC = () => {
+  const testimonials = [
+    {
+      client: "Cornerstone Property",
+      role: "Pennsylvania",
+      quote: "Extremely thorough. The project was done on time.",
+      detail: "Inbound Wizard & Lead Management",
+      icon: <Landmark className="h-6 w-6 text-slate-300" />
+    },
+    {
+      client: "Cooper Roofing",
+      role: "Vancouver, BC",
+      quote: "Our calls feel fast and pro now. It answers quote requests instantly.",
+      detail: "Inbound & Outbound Reactivation",
+      icon: <Home className="h-6 w-6 text-slate-300" />
+    },
+    {
+      client: "NC Home Buyers",
+      role: "North Carolina",
+      quote: "The system keeps our pipeline warm and filters leads for us.",
+      detail: "Lead Qualification Agent",
+      icon: <Building2 className="h-6 w-6 text-slate-300" />
+    },
+    {
+      client: "Grey Street Dentist",
+      role: "Australia",
+      quote: "Patients book in with no hold time. It works while we treat patients.",
+      detail: "Virtual Dental Receptionist",
+      icon: <Smile className="h-6 w-6 text-slate-300" />
+    },
+  ];
+
+  return (
+    <section id="testimonials" className="relative bg-[#050505] py-24 border-t border-white/5">
+      <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
+        <Reveal>
+          <div className="mb-16 text-center">
+            <h2 className="text-3xl font-bold tracking-tight text-white sm:text-4xl">
+              Proven Results.
+            </h2>
+            <p className="mt-4 text-slate-400">
+                We build for high-volume businesses. Real results from real clients.
+            </p>
           </div>
+        </Reveal>
+
+        <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+          {testimonials.map((item, index) => (
+            <Reveal key={item.client} delay={index * 100}>
+              <article className="group flex h-full flex-col rounded-2xl border border-white/5 bg-white/[0.02] p-6 transition-colors hover:border-purple-500/30 hover:bg-white/[0.04]">
+                <div className="mb-6 flex items-center justify-between">
+                    {/* Placeholder Logo - Replace with <img src="..." /> if you have the file */}
+                    <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-white/5 border border-white/5 group-hover:border-purple-500/20 transition-colors">
+                        {item.icon}
+                    </div>
+                    <div className="flex gap-0.5">
+                        {[...Array(5)].map((_, i) => (
+                            <Star key={i} className="h-3 w-3 fill-purple-500 text-purple-500" />
+                        ))}
+                    </div>
+                </div>
+                
+                <h3 className="text-sm font-bold text-white mb-1">{item.client}</h3>
+                <p className="text-xs text-slate-500 mb-4">{item.role}</p>
+                <p className="text-sm italic text-slate-300 mb-6 flex-1">"{item.quote}"</p>
+                
+                <div className="mt-auto border-t border-white/5 pt-4">
+                    <p className="text-[10px] font-bold text-slate-500 uppercase tracking-wide">{item.detail}</p>
+                </div>
+              </article>
+            </Reveal>
+          ))}
         </div>
-        <span className="text-white">AutoFuse <span className="text-indigo-400">AI</span></span>
       </div>
-      <nav className="mx-auto flex flex-wrap items-center justify-center gap-4">
-        <a href="#solutions" className="hover:text-zinc-200">Solutions</a>
-        <a href="#case-studies" className="hover:text-zinc-200">Case studies</a>
-        <a href="#how-it-works" className="hover:text-zinc-200">How it works</a>
-      </nav>
-      <div className="text-xs">© {new Date().getFullYear()} AutoFuse AI. All rights reserved.</div>
-    </div>
-  </footer>
-);
-
-/****************
- * Router / App *
- ****************/
-function RouterView({ route, onNavigate }) {
-  return (
-    <main>
-      {route === "home" && <HomePage onNavigate={onNavigate} />}
-      {route === "solutions" && <SolutionsPage />}
-      {route === "case-studies" && <CaseStudiesPage />}
-      {route === "how-it-works" && <HowItWorksPage />}
-    </main>
+    </section>
   );
-}
+};
 
-export default function App() {
-  const [route, navigate] = useHashRoute("home");
-  useEffect(() => { document.documentElement.classList.add("bg-[#0a0a0a]"); }, []);
+// Section 6: Process (Clean & Numbered)
+const ProcessSection: React.FC = () => {
+  const steps = [
+    {
+      num: "01",
+      title: "Discovery",
+      desc: "We analyze your current call flow. We identify where you are leaking revenue and map out the solution.",
+    },
+    {
+      num: "02",
+      title: "Development",
+      desc: "We build your custom voice agent using Retell AI. We script the logic, clone the voice, and integrate it with your CRM.",
+    },
+    {
+      num: "03",
+      title: "Deployment",
+      desc: "We go live. Your AI starts answering calls, booking deals, and qualifying leads 24/7.",
+    },
+  ];
+
+  const calUrl = "https://cal.com/taha-issaoui-g9ve4z/discovery";
+
   return (
-    <div className="min-h-screen bg-[#0a0a0a] text-zinc-100">
-      <BackgroundFX />
-      <Header route={route} onNavigate={navigate} />
-      <RouterView route={route} onNavigate={navigate} />
-      <Footer />
-      <style>{`
-        .animate-marquee { display:inline-block; animation: marquee 24s linear infinite; }
-        @keyframes marquee { 0%{ transform: translateX(0) } 100%{ transform: translateX(-50%) } }
-      `}</style>
+    <section id="process" className="relative bg-[#050505] py-24">
+      <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
+        <Reveal>
+            <div className="flex flex-col md:flex-row md:items-end justify-between mb-16 gap-6">
+                <div className="max-w-xl">
+                    <h2 className="text-3xl font-bold tracking-tight text-white sm:text-4xl mb-4">
+                        Simple Integration.
+                    </h2>
+                    <p className="text-slate-400">
+                        We handle the technical heavy lifting. You just enjoy the extra capacity.
+                    </p>
+                </div>
+                <a
+                    href={calUrl}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="group flex items-center gap-2 text-sm font-bold text-purple-400 hover:text-purple-300 transition-colors"
+                >
+                    Start the process <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
+                </a>
+            </div>
+        </Reveal>
+
+        <div className="grid gap-8 md:grid-cols-3">
+          {steps.map((step, i) => (
+            <Reveal key={step.num} delay={i * 100}>
+                <div className="relative group h-full">
+                    <div className="absolute -inset-0.5 rounded-2xl bg-gradient-to-r from-purple-500/20 to-blue-500/20 opacity-0 group-hover:opacity-100 transition duration-500 blur-lg" />
+                    <div className="relative flex flex-col h-full rounded-2xl border border-white/10 bg-black p-8 hover:border-white/20 transition-colors">
+                        <div className="text-5xl font-bold text-transparent bg-clip-text bg-gradient-to-b from-slate-700 to-black mb-6">
+                            {step.num}
+                        </div>
+                        <h3 className="text-lg font-bold text-white mb-2">{step.title}</h3>
+                        <p className="text-sm text-slate-400 leading-relaxed">{step.desc}</p>
+                    </div>
+                </div>
+            </Reveal>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+};
+
+// Section 7: Final CTA
+const FinalCTASection: React.FC = () => {
+  const calUrl = "https://cal.com/taha-issaoui-g9ve4z/discovery";
+
+  return (
+    <section className="relative overflow-hidden bg-black py-32 border-t border-white/5">
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_bottom,_var(--tw-gradient-stops))] from-purple-900/20 via-black to-black" />
+        
+      <div className="relative mx-auto max-w-4xl px-4 text-center sm:px-6 lg:px-8">
+        <Reveal>
+          <div className="space-y-8">
+            <h2 className="text-4xl font-bold tracking-tight text-white sm:text-5xl lg:text-6xl">
+              Ready to automate?
+            </h2>
+            <p className="mx-auto max-w-2xl text-lg text-slate-400">
+              Join the businesses using AutoFuse AI to capture every lead, 24/7.
+            </p>
+            <div className="flex flex-col items-center gap-4 pt-4 sm:flex-row sm:justify-center">
+              <a
+                href={calUrl}
+                target="_blank"
+                rel="noreferrer"
+                className="neon-button inline-flex h-14 min-w-[200px] items-center justify-center rounded-full px-10 text-sm font-bold text-slate-950 transition-transform hover:scale-105"
+              >
+                Book Strategy Call
+              </a>
+            </div>
+          </div>
+        </Reveal>
+      </div>
+    </section>
+  );
+};
+
+// Footer
+const SiteFooter: React.FC = () => {
+  return (
+    <footer className="border-t border-white/5 bg-black py-8">
+      <div className="mx-auto flex max-w-6xl flex-col items-center justify-between gap-4 px-4 sm:flex-row sm:px-6 lg:px-8">
+        <div className="flex items-center gap-2">
+            <div className="flex h-6 w-6 items-center justify-center rounded-lg bg-gradient-to-tr from-purple-500 to-blue-500">
+                 <Phone className="h-3 w-3 text-white" />
+            </div>
+            <span className="text-sm font-bold text-slate-200">AutoFuse AI</span>
+        </div>
+        <div className="text-[11px] text-slate-600">
+          © {new Date().getFullYear()} AutoFuse AI. All rights reserved.
+        </div>
+      </div>
+    </footer>
+  );
+};
+
+// --- EFFECTS & HELPERS ---
+
+const CursorGlow: React.FC = () => {
+  const [pos, setPos] = useState({ x: 0, y: 0 });
+  useEffect(() => {
+    const handleMove = (e: MouseEvent) => setPos({ x: e.clientX, y: e.clientY });
+    window.addEventListener("mousemove", handleMove);
+    return () => window.removeEventListener("mousemove", handleMove);
+  }, []);
+  return (
+    <div className="pointer-events-none fixed inset-0 z-50 mix-blend-screen transition-opacity duration-300">
+      <div
+        className="h-96 w-96 rounded-full bg-blue-500/5 blur-[80px]"
+        style={{
+          position: "fixed",
+          left: pos.x,
+          top: pos.y,
+          transform: "translate(-50%, -50%)",
+        }}
+      />
     </div>
   );
-}
+};
+
+// Better Waveform Circle (Siri Style)
+const WaveformCircle: React.FC = () => {
+    return (
+      <div className="relative flex items-center justify-center h-full w-full">
+         <div className="absolute w-24 h-24 rounded-full border border-white/20 animate-[spin_10s_linear_infinite]" />
+         <div className="absolute w-32 h-32 rounded-full border border-purple-500/10 animate-[spin_15s_linear_infinite_reverse]" />
+         
+         <div className="flex gap-1 items-center">
+            {[...Array(5)].map((_, i) => (
+                <div 
+                    key={i}
+                    className="w-1.5 bg-gradient-to-t from-purple-400 to-cyan-400 rounded-full"
+                    style={{
+                        height: '20px',
+                        animation: `voiceWave 1.2s ease-in-out infinite ${i * 0.15}s`
+                    }}
+                />
+            ))}
+         </div>
+      </div>
+    );
+};
+
+const Reveal: React.FC<{ children: React.ReactNode; delay?: number }> = ({ children, delay = 0 }) => {
+  const ref = useRef<HTMLDivElement>(null);
+  const [isVisible, setIsVisible] = useState(false);
+  
+  useEffect(() => {
+    const observer = new IntersectionObserver(([entry]) => {
+      if (entry.isIntersecting) {
+        setIsVisible(true);
+        observer.disconnect();
+      }
+    }, { threshold: 0.1 });
+    if (ref.current) observer.observe(ref.current);
+    return () => observer.disconnect();
+  }, []);
+
+  return (
+    <div
+      ref={ref}
+      style={{ transitionDelay: `${delay}ms` }}
+      className={`transition-all duration-1000 transform ${
+        isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10"
+      }`}
+    >
+      {children}
+    </div>
+  );
+};
+
+const StyleFX: React.FC = () => {
+  return (
+    <style jsx global>{`
+      .neon-button {
+        background-image: linear-gradient(135deg, #9333ea, #3b82f6);
+        box-shadow: 0 0 25px rgba(147, 51, 234, 0.4);
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      }
+      .neon-button:hover {
+        box-shadow: 0 0 40px rgba(147, 51, 234, 0.6);
+        filter: brightness(1.1);
+      }
+      @keyframes voiceWave {
+        0%, 100% { height: 20px; opacity: 0.5; }
+        50% { height: 60px; opacity: 1; }
+      }
+      .perspective-1000 {
+        perspective: 1000px;
+      }
+    `}</style>
+  );
+};
